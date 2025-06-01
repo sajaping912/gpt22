@@ -1042,7 +1042,7 @@ function triggerSentenceWordAnimation(sentenceObject, isQuestion, allWordRects, 
           if (relevantWordRects.length > auxWordGlobalIndexInSentence) {
             const targetWordRectCandidate = relevantWordRects[auxWordGlobalIndexInSentence];
             // 안전하게 단어 텍스트도 비교 (이미 정렬되었으므로 인덱스가 맞아야 함)
-            const candidateTextClean = targetWordRectCandidate.word.replace(/[^a-z0-9']/g, "").toLowerCase();
+            const candidateTextClean = targetWordRectCandidate.word.replace(/[^a-zA-Z0-9']/g, "").toLowerCase();
             const auxWordTextClean = auxWordForAnimation.replace(/[^a-zA-Z0-9']/g, "").toLowerCase();
 
             if (candidateTextClean === auxWordTextClean) {
@@ -1110,7 +1110,7 @@ function drawSingleSentenceBlock(sentenceObject, baseY, isQuestionBlock, blockCo
             const wordStartX = currentX;
             const measuredWordWidth = wordMetrics[j].width;
 
-            let lowerCleanedWordForColor = rawWord.toLowerCase().replace(/[^a-z0-9']/g, "");
+            let lowerCleanedWordForColor = rawWord.toLowerCase().replace(/[^a-z0-9']/g, '');
 
             let color = "#fff";
             if (isCurrentBlockContentQuestionType && i === 0 && isWh(lowerCleanedWordForColor)) {
@@ -1334,8 +1334,10 @@ function drawCenterSentence() {
 
         if (activeWordTranslation.lineIndex === 0) { // 위쪽 줄 단어: 우상향 40도 ("//" 모양)
             translateX = wordCenterX;
-            const verticalClearanceFirstLine = 13; 
+            // Y 위치: 기존 verticalClearanceFirstLine (13) 에서 20px 아래로 이동 요청 반영
+            const verticalClearanceFirstLine = 13 - 20; // 즉, -7. 결과적으로 단어 윗면에서 (basePadding(8) + (-7)) = 1px 위.
             translateY = englishWordMiddleY - englishWordHalfHeight - basePadding - verticalClearanceFirstLine; 
+            
             angleRad = -angleDegrees * Math.PI / 180; // 우상향 (-40도)
 
             textAlign = 'left';   
@@ -1345,10 +1347,9 @@ function drawCenterSentence() {
         } else { // 아래쪽 줄 단어: 좌하향 40도 ("//" 모양), 글자 정상
             translateX = wordCenterX;
 
-            // Y 위치: 단어의 아랫면에서 간격을 두고 회전 기준점 설정
-            // verticalClearanceSecondLine 값은 이전의 30에서 현재 요청(위로 30px)을 반영하여 0으로 설정합니다.
-            // 이렇게 하면 basePadding(8) 만큼만 단어 아래에 기준점이 위치합니다.
-            const verticalClearanceSecondLine = 20 + 10 - 30; // 이전 30에서 30을 빼서 0으로 만듦 (요청에 따라 30px 위로)
+            // Y 위치: 단어의 아랫면에서 간격을 두고 회전 기준점 설정 (사용자 요청 30px 위로 이동 반영)
+            // verticalClearanceSecondLine (이전 30) 에서 30px 위로 -> 0
+            const verticalClearanceSecondLine = 20 + 10 - 30; 
             translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + verticalClearanceSecondLine; 
             
             angleRad = -angleDegrees * Math.PI / 180; // 우상향과 동일한 각도 (-40도)로 회전
@@ -1356,10 +1357,7 @@ function drawCenterSentence() {
             textAlign = 'right';  // 텍스트의 오른쪽 끝을 기준으로 그림
             textBaseline = 'bottom'; // 텍스트의 아래쪽을 기준으로 그림
             
-            // drawX: 텍스트의 오른쪽 아래 모서리가 회전 중심에서 왼쪽으로 textOffset 만큼 이동
             drawX = -textOffset; 
-            // drawY: 텍스트의 오른쪽 아래 모서리가 회전 중심에서 위로 textOffset 만큼 이동.
-            // -40도 회전 후, 이 조합은 텍스트가 단어 아래에서 시작하여 좌하향으로 뻗어나가도록 함.
             drawY = textOffset; 
         }
 
@@ -2070,10 +2068,10 @@ canvas.addEventListener('touchmove', e => {
   const touch = e.touches[0];
   const isOverPlayBtnQ = showPlayButtonQuestion && playButtonRectQuestion &&
     touch.clientX >= (playButtonRectQuestion.x - expandedMargin) && touch.clientX <= (playButtonRectQuestion.x + playButtonRectQuestion.w + expandedMargin) &&
-    touch.clientY >= (playButtonRectQuestion.y - expandedMargin) && touch.clientY <= (playButtonRectQuestion.y + playButtonRectQuestion.h + expandedMargin);
+    touch.clientY >= (playButtonRectQuestion.y - expandedMargin) && clientY <= (playButtonRectQuestion.y + playButtonRectQuestion.h + expandedMargin);
   const isOverPlayBtnA = showPlayButton && playButtonRect &&
-    touch.clientX >= (playButtonRect.x - expandedMargin) && touch.clientX <= (playButtonRect.x + playButtonRect.w + expandedMargin) &&
-    touch.clientY >= (playButtonRect.y - expandedMargin) && touch.clientY <= (playButtonRect.y + playButtonRect.h + expandedMargin);
+    touch.clientX >= (playButtonRect.x - expandedMargin) && clientX <= (playButtonRect.x + playButtonRect.w + expandedMargin) &&
+    touch.clientY >= (playButtonRect.y - expandedMargin) && clientY <= (playButtonRect.y + playButtonRect.h + expandedMargin);
   let isOverWord = false;
   if ((currentQuestionSentence || currentAnswerSentence) && centerSentenceWordRects.length > 0) {
     for (const wordRect of centerSentenceWordRects) {
