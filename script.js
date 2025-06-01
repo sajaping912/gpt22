@@ -282,7 +282,6 @@ async function playSentenceAudio(index) {
 
     currentSentenceAudio.onended = () => {
       currentSentenceAudio = null;
-      // 이 Promise는 재생 시작 시 resolve되므로, onended에서는 resolve하지 않습니다.
     };
     currentSentenceAudio.onerror = (e) => {
       console.error(`Error playing sentence audio: ${audioFilePath}`, e);
@@ -291,7 +290,7 @@ async function playSentenceAudio(index) {
     };
 
     currentSentenceAudio.play().then(() => {
-        resolve(); // 재생이 성공적으로 시작되면 Promise를 resolve합니다.
+        resolve();
     }).catch(e => {
       console.error(`Failed to play ${audioFilePath}`, e);
       currentSentenceAudio = null;
@@ -1062,7 +1061,7 @@ function drawSingleSentenceBlock(sentenceObject, baseY, isQuestionBlock, blockCo
 
     let localWordRects = [];
     ctx.font = englishFont;
-    ctx.textAlign = "left"; 
+    ctx.textAlign = "left";
     ctx.textBaseline = "middle";
 
     let lines = [sentenceObject.line1, sentenceObject.line2].filter(l => l && l.trim());
@@ -1087,10 +1086,10 @@ function drawSingleSentenceBlock(sentenceObject, baseY, isQuestionBlock, blockCo
         const lineText = lines[i];
         let currentLineCenterY = yFirstLineTextCenter + i * LINE_HEIGHT;
 
-        if (isQuestionBlock) { 
-            if (i === 0) currentLineCenterY -= 10; 
-        } else { 
-            if (i === 1) currentLineCenterY += 10; 
+        if (isQuestionBlock) {
+            if (i === 0) currentLineCenterY -= 10;
+        } else {
+            if (i === 1) currentLineCenterY += 10;
         }
 
 
@@ -1112,7 +1111,7 @@ function drawSingleSentenceBlock(sentenceObject, baseY, isQuestionBlock, blockCo
             const measuredWordWidth = wordMetrics[j].width;
 
             let lowerCleanedWordForColor = rawWord.toLowerCase().replace(/[^a-z0-9']/g, "");
-            
+
             let color = "#fff";
             if (isCurrentBlockContentQuestionType && i === 0 && isWh(lowerCleanedWordForColor)) {
                 color = '#5DBB63';
@@ -1131,19 +1130,18 @@ function drawSingleSentenceBlock(sentenceObject, baseY, isQuestionBlock, blockCo
                     color = "#40b8ff";
                 }
             }
-            ctx.fillStyle = color; 
+            ctx.fillStyle = color;
 
             const currentWordRectData = {
                 word: rawWord, x: wordStartX, y: currentLineCenterY,
                 w: measuredWordWidth, h: wordHeight, lineIndex: i, isQuestionWord: isQuestionBlock
             };
-            
+
             let matchingAnimation = null;
             for (const anim of activeAnimations) {
                 if (anim.targetWordRect.word === currentWordRectData.word &&
                     Math.abs(anim.targetWordRect.x - currentWordRectData.x) < 1 &&
                     Math.abs(anim.targetWordRect.y - currentWordRectData.y) < 1 &&
-                    // Math.abs(anim.targetWordRect.w - currentWordRectData.w) < 1 && // Width can vary slightly with canvas measureText
                     anim.targetWordRect.h === currentWordRectData.h &&
                     anim.targetWordRect.lineIndex === currentWordRectData.lineIndex &&
                     anim.targetWordRect.isQuestionWord === currentWordRectData.isQuestionWord) {
@@ -1159,7 +1157,7 @@ function drawSingleSentenceBlock(sentenceObject, baseY, isQuestionBlock, blockCo
             } else {
                 ctx.fillText(rawWord, wordStartX, currentLineCenterY);
             }
-            
+
             localWordRects.push(currentWordRectData);
 
             if (j < words.length - 1) {
@@ -1223,7 +1221,7 @@ function drawCenterSentence() {
         return;
     }
 
-    let newWordRects = []; 
+    let newWordRects = [];
 
     ctx.save();
     ctx.globalAlpha = centerAlpha;
@@ -1250,7 +1248,7 @@ function drawCenterSentence() {
         const questionLinesForHeight = [currentQuestionSentence.line1, currentQuestionSentence.line2].filter(l => l && l.trim());
         if (questionLinesForHeight.length > 0) {
             let actualFirstLineCenterY = questionBlockCenterY - (questionLinesForHeight.length * LINE_HEIGHT) / 2 + LINE_HEIGHT / 2;
-            if (questionLinesForHeight.length > 0) actualFirstLineCenterY -=10; 
+            if (questionLinesForHeight.length > 0) actualFirstLineCenterY -=10;
             playButtonQuestionY = actualFirstLineCenterY - btnH_forHitbox / 2;
         }
 
@@ -1265,7 +1263,7 @@ function drawCenterSentence() {
             ctx.font = translationFont;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillStyle = "#2E8B57"; 
+            ctx.fillStyle = "#2E8B57";
             ctx.shadowColor = "#111"; ctx.shadowBlur = 4;
             const translationTextHeight = parseFloat(translationFont.match(/(\d*\.?\d*)px/)[1]);
             const translationBelowY = questionDrawOutput.lastY + 10 + translationTextHeight / 2;
@@ -1281,13 +1279,13 @@ function drawCenterSentence() {
 
         if (currentQuestionSentence) {
             topYForAnswerBlock = questionDrawOutput.lastY + ANSWER_OFFSET_Y;
-        } else { 
+        } else {
             let effectiveCenterY = mainRenderAreaYCenter;
-            if (answerLines.length === 2) effectiveCenterY -= 10 / 2; 
+            if (answerLines.length === 2) effectiveCenterY -= 10 / 2;
              topYForAnswerBlock = effectiveCenterY - (answerBlockHeight / 2);
         }
 
-        const answerFirstLineCenterY = topYForAnswerBlock + LINE_HEIGHT / 2; 
+        const answerFirstLineCenterY = topYForAnswerBlock + LINE_HEIGHT / 2;
         playButtonRect = { x: btnX, y: answerFirstLineCenterY - btnH_forHitbox / 2, w: btnW_forHitbox, h: btnH_forHitbox };
         if (showPlayButton) {
             drawPlayButton(playButtonRect, currentVisualScaleForHitbox);
@@ -1303,15 +1301,15 @@ function drawCenterSentence() {
             ctx.font = translationFont;
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
-            ctx.fillStyle = "#2E8B57"; 
+            ctx.fillStyle = "#2E8B57";
             ctx.shadowColor = "#111"; ctx.shadowBlur = 4;
             const translationTextHeight = parseFloat(translationFont.match(/(\d*\.?\d*)px/)[1]);
-            const translationBelowY = answerDrawOutput.lastY + 3 + translationTextHeight / 2; 
+            const translationBelowY = answerDrawOutput.lastY + 3 + translationTextHeight / 2;
             ctx.fillText(translations[currentAnswerSentenceIndex], canvas.width / 2, translationBelowY);
             ctx.restore();
         }
     }
-    centerSentenceWordRects = newWordRects; 
+    centerSentenceWordRects = newWordRects;
 
 
     // START OF MODIFIED WORD TRANSLATION DRAWING LOGIC
@@ -1321,44 +1319,45 @@ function drawCenterSentence() {
         const wordTransFontFamily = "'Malgun Gothic', 'Nanum Gothic', Arial, sans-serif";
         const wordTransFontSize = 16;
         ctx.font = `${wordTransFontSize}px ${wordTransFontFamily}`;
-        ctx.fillStyle = "#2E8B57"; 
+        ctx.fillStyle = "#2E8B57";
         ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1;
 
         const angleDegrees = 40;
-        const basePadding = 8; // 단어 경계와 번역문 회전 중심 사이의 기본 Y 간격
-        const textOffset = 5;  // 회전된 기준점으로부터 텍스트 시작점까지의 미세 X, Y 오프셋
+        const basePadding = 8; 
+        const textOffset = 5;  
 
         const wordCenterX = activeWordTranslation.x + activeWordTranslation.w / 2;
-        const englishWordMiddleY = activeWordTranslation.y; // 단어 텍스트 라인의 수직 중앙
-        const englishWordHalfHeight = activeWordTranslation.h / 2; // 단어 폰트 높이의 절반
+        const englishWordMiddleY = activeWordTranslation.y; 
+        const englishWordHalfHeight = activeWordTranslation.h / 2; 
 
         let translateX, translateY, angleRad, textAlign, textBaseline, drawX, drawY;
 
-        if (activeWordTranslation.lineIndex === 0) { // 위쪽 줄 단어
+        if (activeWordTranslation.lineIndex === 0) { // 위쪽 줄 단어: 우상향 40도 ("//" 모양)
             translateX = wordCenterX;
-            translateY = englishWordMiddleY - englishWordHalfHeight - basePadding + 13; // 첫째 줄: 단어 위쪽으로, 최종적으로 원래 위치에서 13px 아래에 회전 중심 Y
-            angleRad = -angleDegrees * Math.PI / 180; // 우상향
+            const verticalClearanceFirstLine = 13; 
+            translateY = englishWordMiddleY - englishWordHalfHeight - basePadding - verticalClearanceFirstLine; 
+            angleRad = -angleDegrees * Math.PI / 180; // 우상향 (-40도)
 
-            textAlign = 'left';
+            textAlign = 'left';   
             textBaseline = 'bottom';
-            drawX = textOffset;
-            drawY = -textOffset;
-        } else { // 아래쪽 줄 단어: 좌하향 40도
+            drawX = textOffset;     
+            drawY = -textOffset;    
+        } else { // 아래쪽 줄 단어: 좌하향 40도 ("//" 모양), 글자 정상
             translateX = wordCenterX;
 
-            // Y 위치: 단어의 아랫면에서 충분한 간격을 두고 회전 기준점 설정
-            // verticalClearance 값으로 Y 간격 조정 (이전 20 + 추가 10 = 30)
-            const verticalClearance = 30; 
-            translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + verticalClearance; // 단어 하단에서 (8 + 30) = 38px 아래에 회전 중심 Y
+            const verticalClearanceSecondLine = 13 + 10 + 7; // 첫째줄 간격(13) + 사용자 요청(10) + 추가 여유(7) = 총 30px
+            translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + verticalClearanceSecondLine;
             
-            // 각도: 좌하향 40도. 텍스트가 올바르게 보이도록 (x축 양의 방향에서) 220도 또는 -140도 회전.
-            angleRad = (220 * Math.PI) / 180; // 220도 (또는 -140 * Math.PI / 180)
+            angleRad = -angleDegrees * Math.PI / 180; // 우상향과 동일한 각도 (-40도)로 회전
 
-            textAlign = 'left';  // 회전 후 텍스트가 (drawX, drawY)에서 오른쪽으로 그려지도록 설정
-            textBaseline = 'top';   // 회전 후 텍스트의 상단이 (drawX, drawY)에 맞춰지도록 설정
+            textAlign = 'right';  // 텍스트의 오른쪽 끝을 기준으로 그림
+            textBaseline = 'bottom'; // 텍스트의 아래쪽을 기준으로 그림
             
-            drawX = textOffset; // 회전된 기준점에서 살짝 오른쪽으로 이동 (텍스트의 왼쪽 시작점)
-            drawY = textOffset; // 회전된 기준점에서 살짝 아래로 이동 (텍스트의 위쪽 시작점)
+            // drawX: 텍스트의 오른쪽 아래 모서리가 회전 중심에서 왼쪽으로 textOffset 만큼 이동
+            drawX = -textOffset; 
+            // drawY: 텍스트의 오른쪽 아래 모서리가 회전 중심에서 위로 textOffset 만큼 이동.
+            // -40도 회전 후, 이 조합은 텍스트가 단어 아래에서 시작하여 좌하향으로 뻗어나가도록 함.
+            drawY = textOffset; 
         }
 
         ctx.translate(translateX, translateY);
@@ -1408,20 +1407,20 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
     } else { // Answer
         if (currentQuestionSentence && currentQuestionSentenceIndex === globalSentenceIndex - 1) {
             questionTextForLayout = (currentQuestionSentence.line1 + " " + currentQuestionSentence.line2).trim();
-        } else if (globalSentenceIndex > 0 && sentences[globalSentenceIndex - 1]) { 
+        } else if (globalSentenceIndex > 0 && sentences[globalSentenceIndex - 1]) {
             questionTextForLayout = sentences[globalSentenceIndex - 1];
-        } else { 
-            questionTextForLayout = " "; 
+        } else {
+            questionTextForLayout = " ";
         }
         currentAnswerSentence = null; currentAnswerSentenceIndex = null;
-        showPlayButton = false; 
+        showPlayButton = false;
         showTranslationForAnswer = false;
     }
 
     if (activeWordTranslation)
     activeWordTranslation = null;
     if (wordTranslationTimeoutId)
-    centerSentenceWordRects = []; 
+    centerSentenceWordRects = [];
 
     const [fireworkLine1, fireworkLine2] = splitSentence(sentenceTextForFireworks, isNewSentenceQuestion);
     const wordsForFireworks = [];
@@ -1429,7 +1428,7 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
     if (fireworkLine2.trim()) wordsForFireworks.push(...fireworkLine2.split(" ").map(word => ({ word, row: 1 })));
 
     if(wordsForFireworks.length === 0) {
-        sentenceActive = false; return; 
+        sentenceActive = false; return;
     }
 
     const baseRadius = 51.2 * 0.88; const maxRadius = 120.96 * 0.88 * 0.95; // Adjusted maxRadius
@@ -1449,7 +1448,7 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
     const mainRenderAreaYCenter = topOffset + (canvas.height - topOffset) / 2;
     const [sL1_fw, sL2_fw] = splitSentence(sentenceTextForFireworks, isNewSentenceQuestion);
     const sLines_fw = [sL1_fw, sL2_fw].filter(l => l && l.trim());
-    const sentenceBlockFinalHeight_fw = sLines_fw.length * LINE_HEIGHT + (sLines_fw.length === 2 && isNewSentenceQuestion ? -10 : (sLines_fw.length === 2 && !isNewSentenceQuestion ? 10 : 0)); 
+    const sentenceBlockFinalHeight_fw = sLines_fw.length * LINE_HEIGHT + (sLines_fw.length === 2 && isNewSentenceQuestion ? -10 : (sLines_fw.length === 2 && !isNewSentenceQuestion ? 10 : 0));
 
 
     for (let j = 0; j < wordsForFireworks.length; j++) {
@@ -1460,32 +1459,32 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
         if (roleOfNewSentence === 'question') {
             const qBlockFinalCenterY = mainRenderAreaYCenter + SENTENCE_VERTICAL_ADJUSTMENT;
             wordTargetY = qBlockFinalCenterY - sentenceBlockFinalHeight_fw / 2 + (wordsForFireworks[j].row * LINE_HEIGHT) + (LINE_HEIGHT / 2);
-            if (wordsForFireworks[j].row === 0) wordTargetY -= 10; 
+            if (wordsForFireworks[j].row === 0) wordTargetY -= 10;
         } else { // Answer
             const [qTextL1_layout, qTextL2_layout] = splitSentence(questionTextForLayout, true);
             const qTextLines_layout = [qTextL1_layout, qTextL2_layout].filter(l => l && l.trim());
             let questionBlockActualHeight_layout = qTextLines_layout.length * LINE_HEIGHT;
-            if(qTextLines_layout.length === 1) questionBlockActualHeight_layout -=10; 
-            
+            if(qTextLines_layout.length === 1) questionBlockActualHeight_layout -=10;
+
             const questionBlockActualCenterY_layout = mainRenderAreaYCenter + SENTENCE_VERTICAL_ADJUSTMENT;
             let questionBlockActualBottomY_layout = questionBlockActualCenterY_layout + questionBlockActualHeight_layout / 2;
-             if (qTextLines_layout.length === 1) { 
+             if (qTextLines_layout.length === 1) {
                  questionBlockActualBottomY_layout = questionBlockActualCenterY_layout - 10;
              } else if (qTextLines_layout.length === 2){
-                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout + LINE_HEIGHT - 10; 
-             } else if (qTextLines_layout.length === 0) { 
-                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout; 
+                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout + LINE_HEIGHT - 10;
+             } else if (qTextLines_layout.length === 0) {
+                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout;
              }
 
 
             let answerBlockFinalTopY_fw;
             if (qTextLines_layout.length > 0) {
                 answerBlockFinalTopY_fw = questionBlockActualBottomY_layout + ANSWER_OFFSET_Y;
-            } else { 
+            } else {
                 answerBlockFinalTopY_fw = questionBlockActualCenterY_layout - sentenceBlockFinalHeight_fw / 2;
             }
             wordTargetY = answerBlockFinalTopY_fw + (wordsForFireworks[j].row * LINE_HEIGHT) + (LINE_HEIGHT / 2);
-            if (wordsForFireworks[j].row === 1) wordTargetY += 10; 
+            if (wordsForFireworks[j].row === 1) wordTargetY += 10;
         }
 
 
@@ -1494,7 +1493,7 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
             x: centerX, y: explosionY,
             radius: baseRadius, maxRadius: maxRadius,
             color: color,
-            targetX: 0, 
+            targetX: 0,
             targetY: wordTargetY,
         });
     }
@@ -1519,13 +1518,13 @@ function updateFireworks() {
   } else if (fireworksState.phase === "hold") {
     if (fireworksState.t >= fireworksState.holdDuration) {
       fireworksState.phase = "gather"; fireworksState.t = 0;
-      centerAlpha = 0; 
+      centerAlpha = 0;
     }
   } else if (fireworksState.phase === "gather") {
     const progress = Math.min(fireworksState.t / fireworksState.gatherDuration, 1);
-    const ease = Math.pow(progress, 2); 
-    const tempCtx = canvas.getContext('2d'); 
-    tempCtx.font = englishFont; 
+    const ease = Math.pow(progress, 2);
+    const tempCtx = canvas.getContext('2d');
+    tempCtx.font = englishFont;
     const isGatherSentenceQuestion = fireworksState.roleOfNewSentence === 'question';
     const [sentenceLine1Gather, sentenceLine2Gather] = splitSentence(fireworksState.sentenceTextToDisplayAfter, isGatherSentenceQuestion);
     let sentenceLineWordArrays = [];
@@ -1546,7 +1545,7 @@ function updateFireworks() {
                 currentLineTotalWidth += adjustedSpaceWidthFireworks;
             }
         }
-        let currentXTargetForWord = (canvas.width - currentLineTotalWidth) / 2; 
+        let currentXTargetForWord = (canvas.width - currentLineTotalWidth) / 2;
         for (let j = 0; j < wordsInLine.length; j++) {
             if (fireworks[wordIndexInFireworks]) {
                 fireworks[wordIndexInFireworks].targetX = currentXTargetForWord;
@@ -1560,10 +1559,10 @@ function updateFireworks() {
     }
 
     fireworks.forEach((fw) => {
-      fw.x += (fw.targetX - fw.x) * ease * 0.2; 
-      fw.y += (fw.targetY - fw.y) * ease * 0.2; 
+      fw.x += (fw.targetX - fw.x) * ease * 0.2;
+      fw.y += (fw.targetY - fw.y) * ease * 0.2;
     });
-    centerAlpha += (1.0 - centerAlpha) * ease * 0.15; 
+    centerAlpha += (1.0 - centerAlpha) * ease * 0.15;
 
     if (progress >= 1) {
         fireworksState.phase = "done";
@@ -1578,7 +1577,7 @@ function updateFireworks() {
         if (roleOfNewSentence === 'question') {
             currentQuestionSentence = newSentenceObject; currentQuestionSentenceIndex = newSentenceIndex;
             currentAnswerSentence = null; currentAnswerSentenceIndex = null;
-            showPlayButton = false; showPlayButtonQuestion = true; 
+            showPlayButton = false; showPlayButtonQuestion = true;
             playAudioForThisSentence = true;
         } else { // Answer
             const questionIndexOfThisAnswer = newSentenceIndex - 1;
@@ -1588,18 +1587,18 @@ function updateFireworks() {
                     currentQuestionSentence = {line1: qL1, line2: qL2};
                     currentQuestionSentenceIndex = questionIndexOfThisAnswer;
                 }
-                 showPlayButtonQuestion = true; 
-            } else { 
+                 showPlayButtonQuestion = true;
+            } else {
                 currentQuestionSentence = null; currentQuestionSentenceIndex = null;
                 showPlayButtonQuestion = false;
             }
             currentAnswerSentence = newSentenceObject; currentAnswerSentenceIndex = newSentenceIndex;
-            showPlayButton = true; 
+            showPlayButton = true;
             playAudioForThisSentence = true;
         }
         centerAlpha = 1.0;
         fireworks = null; fireworksState = null; sentenceActive = false;
-        if (activeWordTranslation) activeWordTranslation.show = false; 
+        if (activeWordTranslation) activeWordTranslation.show = false;
         activeWordTranslation = null; if (wordTranslationTimeoutId) clearTimeout(wordTranslationTimeoutId);
 
         if (playAudioForThisSentence) {
@@ -1616,26 +1615,22 @@ function updateFireworks() {
                 sentenceObjectForAnimation = currentAnswerSentence;
                 isQuestionForAnimation = false;
             }
-            
+
             if (audioIndexToPlay !== null && sentenceObjectForAnimation) {
-                // 문장 안정화 및 오디오 준비를 위한 기존 지연 시간
-                setTimeout(() => { 
-                    window.speechSynthesis.cancel(); 
+                setTimeout(() => {
+                    window.speechSynthesis.cancel();
                     playSentenceAudio(audioIndexToPlay)
                         .then(() => {
-                            // 오디오 재생이 시작된 후 애니메이션 트리거
-                            // 플레이 버튼 터치 시의 애니메이션 지연(AUX_ANIMATION_DELAY 등)과 유사한 값을 사용
-                            // 여기서는 300ms를 사용하여 음성 시작과 애니메이션 시작 사이에 약간의 간격을 둠
                             triggerSentenceWordAnimation(
-                                sentenceObjectForAnimation, 
-                                isQuestionForAnimation, 
-                                centerSentenceWordRects, // 이 시점에는 drawCenterSentence를 통해 채워져 있을 것으로 기대
-                                ctx, 
-                                300 // 음성 시작 후 애니메이션 시작까지의 지연 시간
+                                sentenceObjectForAnimation,
+                                isQuestionForAnimation,
+                                centerSentenceWordRects,
+                                ctx,
+                                300
                             );
                         })
                         .catch(err => console.error(`Error playing sentence audio for index ${audioIndexToPlay} from fireworks:`, err));
-                }, 300); // 불꽃놀이 종료 후 문장 표시 및 오디오 재생까지의 지연
+                }, 300);
             }
         }
     }
@@ -1655,34 +1650,33 @@ function spawnEnemy() {
   };
   if (idx === 3) { // Maple Leaf
     enemy.swayAngle = Math.random() * Math.PI * 2;
-    enemy.swaySpeed = (Math.random() * 2 + 1.5) * (Math.random() > 0.5 ? 1 : -1); // 1.5 to 3.5, random direction
-    enemy.swayAmplitude = Math.random() * 20 + 20; // 20 to 40
-    enemy.driftXPerSecond = (Math.random() - 0.5) * 60; // -30 to 30 pps
+    enemy.swaySpeed = (Math.random() * 2 + 1.5) * (Math.random() > 0.5 ? 1 : -1);
+    enemy.swayAmplitude = Math.random() * 20 + 20;
+    enemy.driftXPerSecond = (Math.random() - 0.5) * 60;
     enemy.flutterAngle = Math.random() * Math.PI * 2;
-    enemy.flutterSpeed = Math.random() * 5 + 3; // 3 to 8 rad/s
-    enemy.flutterAmplitude = Math.random() * 3 + 3; // 3 to 6 pixels
+    enemy.flutterSpeed = Math.random() * 5 + 3;
+    enemy.flutterAmplitude = Math.random() * 3 + 3;
   } else if (idx === 2) { // Cosmos
-    enemy.rotationSpeed = (Math.random() * 0.8 + 0.4) * (Math.random() > 0.5 ? 1 : -1); // 0.4 to 1.2 rad/s
-    enemy.driftXPerSecond = (Math.random() - 0.5) * 20; // -10 to 10 pps
+    enemy.rotationSpeed = (Math.random() * 0.8 + 0.4) * (Math.random() > 0.5 ? 1 : -1);
+    enemy.driftXPerSecond = (Math.random() - 0.5) * 20;
     enemy.swayAngle = Math.random() * Math.PI * 2;
-    enemy.swaySpeed = (Math.random() * 0.8 + 0.4); // 0.4 to 1.2 rad/s
-    enemy.swayAmplitude = Math.random() * 10 + 5; // 5 to 15 pixels
-    // Spawn a detached petal when a cosmos enemy is created
+    enemy.swaySpeed = (Math.random() * 0.8 + 0.4);
+    enemy.swayAmplitude = Math.random() * 10 + 5;
     const petal = {
         x: enemy.x + enemy.w / 2 - PETAL_SIZE / 2, y: enemy.y + enemy.h / 2,
-        w: PETAL_SIZE, h: PETAL_SIZE, img: enemyImgs[2], // Use cosmos image for petal
-        baseY: enemy.y + enemy.h / 2, // Start from enemy center
+        w: PETAL_SIZE, h: PETAL_SIZE, img: enemyImgs[2], 
+        baseY: enemy.y + enemy.h / 2, 
         initialX: enemy.x + enemy.w / 2 - PETAL_SIZE / 2,
         rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * PETAL_ROTATION_SPEED_BASE * 2 + (Math.random() > 0.5 ? 0.3 : -0.3), // Wider range, base +- small random
+        rotationSpeed: (Math.random() - 0.5) * PETAL_ROTATION_SPEED_BASE * 2 + (Math.random() > 0.5 ? 0.3 : -0.3), 
         swayAngle: Math.random() * Math.PI * 2,
-        swaySpeed: (Math.random() * 0.5 + 0.75) * PETAL_SWAY_SPEED_BASE * (Math.random() > 0.5 ? 1 : -1), // 0.75 to 1.25 of base speed
-        swayAmplitude: Math.random() * (PETAL_SWAY_AMPLITUDE_BASE * 0.6) + (PETAL_SWAY_AMPLITUDE_BASE * 0.7), // 70% to 130% of base amplitude
-        driftXPerSecond: (Math.random() - 0.5) * PETAL_DRIFT_X_PPS_BASE * 1.5, // Wider drift
+        swaySpeed: (Math.random() * 0.5 + 0.75) * PETAL_SWAY_SPEED_BASE * (Math.random() > 0.5 ? 1 : -1), 
+        swayAmplitude: Math.random() * (PETAL_SWAY_AMPLITUDE_BASE * 0.6) + (PETAL_SWAY_AMPLITUDE_BASE * 0.7), 
+        driftXPerSecond: (Math.random() - 0.5) * PETAL_DRIFT_X_PPS_BASE * 1.5, 
         flutterAngle: Math.random() * Math.PI * 2,
-        flutterSpeed: (Math.random() * 0.8 + 0.6) * PETAL_FLUTTER_SPEED_BASE, // 60% to 140% of base speed
-        flutterAmplitude: Math.random() * (PETAL_FLUTTER_AMPLITUDE_BASE * 0.5) + (PETAL_FLUTTER_AMPLITUDE_BASE * 0.5), // 50% to 100% of base amplitude
-        fallSpeedPPS: PETAL_FALL_SPEED_PPS * (Math.random() * 0.4 + 0.8) // 80% to 120% of base fall speed
+        flutterSpeed: (Math.random() * 0.8 + 0.6) * PETAL_FLUTTER_SPEED_BASE, 
+        flutterAmplitude: Math.random() * (PETAL_FLUTTER_AMPLITUDE_BASE * 0.5) + (PETAL_FLUTTER_AMPLITUDE_BASE * 0.5), 
+        fallSpeedPPS: PETAL_FALL_SPEED_PPS * (Math.random() * 0.4 + 0.8) 
     };
     detachedPetals.push(petal);
   }
@@ -1690,20 +1684,20 @@ function spawnEnemy() {
 }
 
 function update(delta) {
-  enemies = enemies.filter(e => e.y <= canvas.height + e.h); 
-  while (enemies.length < 2) { spawnEnemy(); } 
+  enemies = enemies.filter(e => e.y <= canvas.height + e.h);
+  while (enemies.length < 2) { spawnEnemy(); }
   enemies.forEach(e => {
     const deltaTimeSeconds = delta / 1000.0;
-    e.baseY += ENEMY_MOVEMENT_SPEED_PPS * deltaTimeSeconds; 
+    e.baseY += ENEMY_MOVEMENT_SPEED_PPS * deltaTimeSeconds;
     let newX = e.x; let newY = e.baseY;
-    if (e.imgIndex === 3) { 
-      e.initialX += e.driftXPerSecond * deltaTimeSeconds; 
+    if (e.imgIndex === 3) {
+      e.initialX += e.driftXPerSecond * deltaTimeSeconds;
       e.swayAngle += e.swaySpeed * deltaTimeSeconds;
-      newX = e.initialX + Math.sin(e.swayAngle) * e.swayAmplitude; 
-      e.rotation = Math.sin(e.swayAngle * 0.7) * 0.7; 
+      newX = e.initialX + Math.sin(e.swayAngle) * e.swayAmplitude;
+      e.rotation = Math.sin(e.swayAngle * 0.7) * 0.7;
       e.flutterAngle += e.flutterSpeed * deltaTimeSeconds;
-      newY = e.baseY + Math.sin(e.flutterAngle) * e.flutterAmplitude; 
-    } else if (e.imgIndex === 2) { 
+      newY = e.baseY + Math.sin(e.flutterAngle) * e.flutterAmplitude;
+    } else if (e.imgIndex === 2) {
       e.initialX += e.driftXPerSecond * deltaTimeSeconds;
       e.rotation += e.rotationSpeed * deltaTimeSeconds;
       e.swayAngle += e.swaySpeed * deltaTimeSeconds;
@@ -1712,12 +1706,12 @@ function update(delta) {
     e.x = newX; e.y = newY;
   });
 
-  bullets = bullets.filter(b => b.y + b.h > 0); 
+  bullets = bullets.filter(b => b.y + b.h > 0);
   bullets.forEach(b => {
     b.timeAlive += delta;
     const deltaTimeSeconds = delta / 1000.0;
-    b.y += b.velocityY * deltaTimeSeconds; 
-    b.baseX += b.driftXPerSecond * deltaTimeSeconds; 
+    b.y += b.velocityY * deltaTimeSeconds;
+    b.baseX += b.driftXPerSecond * deltaTimeSeconds;
     const swayOffset = Math.sin( (b.timeAlive / 1000.0) * b.swayFrequency + b.swayPhaseOffset ) * b.swayAmplitude;
     b.x = b.baseX + swayOffset;
   });
@@ -1733,13 +1727,13 @@ function update(delta) {
       p.rotation += p.rotationSpeed * deltaTimeSeconds;
       p.x = currentX; p.y = currentY;
   });
-  detachedPetals = detachedPetals.filter(p => p.y <= canvas.height + p.h); 
+  detachedPetals = detachedPetals.filter(p => p.y <= canvas.height + p.h);
 
 
-  enemyBullets = enemyBullets.filter(b => b.y < canvas.height).map(b => { b.y += b.speed; return b; }); 
+  enemyBullets = enemyBullets.filter(b => b.y < canvas.height).map(b => { b.y += b.speed; return b; });
   bullets.forEach((b, bi) => {
     enemies.forEach((e, ei) => {
-      const collisionPaddingFactor = 0.25; 
+      const collisionPaddingFactor = 0.25;
       const coreBulletOffsetX = b.w * collisionPaddingFactor;
       const coreBulletOffsetY = b.h * collisionPaddingFactor;
       const coreBulletX = b.x + coreBulletOffsetX;
@@ -1749,7 +1743,7 @@ function update(delta) {
 
       if (coreBulletX < e.x + e.w && coreBulletX + coreBulletWidth > e.x &&
           coreBulletY < e.y + e.h && coreBulletY + coreBulletHeight > e.y) {
-        if (!sentenceActive) { 
+        if (!sentenceActive) {
             const sentenceToFirework = sentences[sentenceIndex];
             const globalIndexOfSentence = sentenceIndex;
             startFireworks(sentenceToFirework, globalIndexOfSentence, e.x + e.w / 2, e.y + e.h / 2);
@@ -1757,17 +1751,17 @@ function update(delta) {
             localStorage.setItem('sentenceIndex', sentenceIndex.toString());
             sounds.explosion.play();
         }
-        enemies.splice(ei, 1); bullets.splice(bi, 1); 
+        enemies.splice(ei, 1); bullets.splice(bi, 1);
       }
     });
   });
-  if (sentenceActive) { updateFireworks(); } 
+  if (sentenceActive) { updateFireworks(); }
 
   if (!currentQuestionSentence && !currentAnswerSentence && !sentenceActive) {
     showPlayButton = false; showPlayButtonQuestion = false;
     showTranslationForQuestion = false; showTranslationForAnswer = false;
     if (activeWordTranslation) activeWordTranslation.show = false;
-  } else if (!sentenceActive) { 
+  } else if (!sentenceActive) {
       showPlayButtonQuestion = !!currentQuestionSentence;
       showPlayButton = !!currentAnswerSentence;
   }
@@ -1784,17 +1778,17 @@ function draw() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
   enemies.forEach(e => {
-    if (e.imgIndex === 2 || e.imgIndex === 3) { 
+    if (e.imgIndex === 2 || e.imgIndex === 3) {
       ctx.save();
       ctx.translate(e.x + e.w / 2, e.y + e.h / 2);
       ctx.rotate(e.rotation);
       ctx.drawImage(e.img, -e.w / 2, -e.h / 2, e.w, e.h);
       ctx.restore();
-    } else { ctx.drawImage(e.img, e.x, e.y, e.w, e.h); } 
+    } else { ctx.drawImage(e.img, e.x, e.y, e.w, e.h); }
     if (e.imgIndex === 1 && coffeeSteamVideo && coffeeSteamVideo.readyState >= HTMLVideoElement.HAVE_ENOUGH_DATA && !coffeeSteamVideo.paused) {
       const steamScale = 0.5; const steamWidth = e.w * steamScale * 1.5;
       const steamHeight = e.h * steamScale * 1.6; const steamOffsetX = (e.w - steamWidth) / 2;
-      const steamOffsetY = -steamHeight * 0.85; 
+      const steamOffsetY = -steamHeight * 0.85;
       const prevCompositeOperation = ctx.globalCompositeOperation;
       ctx.globalCompositeOperation = 'lighter'; ctx.globalAlpha = 0.65;
       ctx.drawImage(coffeeSteamVideo, e.x + steamOffsetX, e.y + steamOffsetY, steamWidth, steamHeight);
@@ -1814,31 +1808,31 @@ function draw() {
       ctx.restore();
   });
 
-  const previousGlobalCenterAlpha = centerAlpha; 
-  if (sentenceActive && fireworks && fireworksState) { 
+  const previousGlobalCenterAlpha = centerAlpha;
+  if (sentenceActive && fireworks && fireworksState) {
     if (fireworksState.roleOfNewSentence === 'answer' && currentQuestionSentence) {
-      centerAlpha = 1.0; 
-      const tempAnswerSentence = currentAnswerSentence; 
+      centerAlpha = 1.0;
+      const tempAnswerSentence = currentAnswerSentence;
       const tempAnswerIndex = currentAnswerSentenceIndex;
       currentAnswerSentence = null; currentAnswerSentenceIndex = null;
-      drawCenterSentence(); 
-      currentAnswerSentence = tempAnswerSentence; currentAnswerSentenceIndex = tempAnswerIndex; 
+      drawCenterSentence();
+      currentAnswerSentence = tempAnswerSentence; currentAnswerSentenceIndex = tempAnswerIndex;
     }
-    centerAlpha = previousGlobalCenterAlpha; 
+    centerAlpha = previousGlobalCenterAlpha;
     drawFireworks();
-  } else { 
+  } else {
     if (currentQuestionSentence || currentAnswerSentence) {
-      centerAlpha = 1.0; 
+      centerAlpha = 1.0;
       drawCenterSentence();
     }
   }
   if (!sentenceActive) centerAlpha = 1.0;
   else if (fireworksState && fireworksState.phase === "gather") { /* Alpha managed by gather */ }
-  else centerAlpha = previousGlobalCenterAlpha; 
+  else centerAlpha = previousGlobalCenterAlpha;
 }
 
 function gameLoop(time) {
-  if (!isGameRunning || isGamePaused) { if (isGamePaused) draw(); return; } 
+  if (!isGameRunning || isGamePaused) { if (isGamePaused) draw(); return; }
   const delta = time - lastTime; lastTime = time;
   update(delta); draw();
   requestAnimationFrame(gameLoop);
@@ -1876,28 +1870,28 @@ function startGame() {
   }
   isGameRunning = true; isGamePaused = false;
   document.getElementById('pauseBtn').textContent = 'PAUSE';
-  if (bgmAudio) { bgmAudio.pause(); } 
-  bgmAudio = new Audio(bgmFiles[bgmIndex]); 
+  if (bgmAudio) { bgmAudio.pause(); }
+  bgmAudio = new Audio(bgmFiles[bgmIndex]);
   bgmAudio.volume = isMuted ? 0 : 0.021; bgmAudio.loop = true;
   const playPromise = bgmAudio.play();
   if (playPromise !== undefined) {
     playPromise.catch(error => { console.error('BGM play error on start:', error); });
   }
-  if (coffeeSteamVideo && coffeeVideoAssetReady) { 
+  if (coffeeSteamVideo && coffeeVideoAssetReady) {
     coffeeSteamVideo.currentTime = 0;
     const coffeePlayPromise = coffeeSteamVideo.play();
     if (coffeePlayPromise !== undefined) {
       coffeePlayPromise.catch(error => console.error("Error playing coffee steam video:", error));
     }
   }
-  resetGameStateForStartStop(); 
+  resetGameStateForStartStop();
   let storedIndex = Number(localStorage.getItem('sentenceIndex') || 0);
   sentenceIndex = storedIndex % sentences.length;
-  localStorage.setItem('sentenceIndex', sentenceIndex.toString()); 
-  spawnEnemy(); spawnEnemy(); 
+  localStorage.setItem('sentenceIndex', sentenceIndex.toString());
+  spawnEnemy(); spawnEnemy();
   player.x = canvas.width / 2 - PLAYER_SIZE / 2;
-  player.y = topOffset + (canvas.height - topOffset) - PLAYER_SIZE - 10; 
-  player.y = Math.max(topOffset, player.y); 
+  player.y = topOffset + (canvas.height - topOffset) - PLAYER_SIZE - 10;
+  player.y = Math.max(topOffset, player.y);
   lastTime = performance.now();
   getVoicesReliably().catch(err => console.error("startGame: Error during voice pre-warming:", err));
   requestAnimationFrame(gameLoop);
@@ -1911,8 +1905,8 @@ function togglePause() {
     pauseButton.textContent = 'RESUME';
     if (bgmAudio && !bgmAudio.paused) bgmAudio.pause();
     if (coffeeSteamVideo && !coffeeSteamVideo.paused) coffeeSteamVideo.pause();
-    window.speechSynthesis.cancel(); 
-    if (currentSentenceAudio) currentSentenceAudio.pause(); 
+    window.speechSynthesis.cancel();
+    if (currentSentenceAudio) currentSentenceAudio.pause();
   } else {
     pauseButton.textContent = 'PAUSE';
     if (bgmAudio && bgmAudio.paused && !isMuted) {
@@ -1921,11 +1915,11 @@ function togglePause() {
     if (coffeeSteamVideo && coffeeSteamVideo.paused && coffeeVideoAssetReady) {
         coffeeSteamVideo.play().catch(error => console.error("Error resuming coffee steam video:", error));
     }
-    if (currentSentenceAudio && currentSentenceAudio.paused) { 
-        currentSentenceAudio.volume = 0.8; 
+    if (currentSentenceAudio && currentSentenceAudio.paused) {
+        currentSentenceAudio.volume = 0.8;
         currentSentenceAudio.play().catch(e => console.error("Sentence audio resume error:", e));
     }
-    lastTime = performance.now(); 
+    lastTime = performance.now();
     requestAnimationFrame(gameLoop);
   }
 }
@@ -1940,10 +1934,10 @@ function stopGame() {
       currentSentenceAudio.pause(); currentSentenceAudio.currentTime = 0; currentSentenceAudio = null;
   }
   resetGameStateForStartStop();
-  ctx.clearRect(0, 0, canvas.width, canvas.height); 
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-const expandedMargin = 10; 
+const expandedMargin = 10;
 
 function handleCanvasInteraction(clientX, clientY, event) {
   if (!isGameRunning || isGamePaused) return;
@@ -1951,7 +1945,7 @@ function handleCanvasInteraction(clientX, clientY, event) {
     const isPlayBtnQuestionTouched = showPlayButtonQuestion && playButtonRectQuestion &&
       clientX >= (playButtonRectQuestion.x - expandedMargin) && clientX <= (playButtonRectQuestion.x + playButtonRectQuestion.w + expandedMargin) &&
       clientY >= (playButtonRectQuestion.y - expandedMargin) && clientY <= (playButtonRectQuestion.y + playButtonRectQuestion.h + expandedMargin);
-    
+
     const isPlayBtnAnswerTouched = showPlayButton && playButtonRect &&
       clientX >= (playButtonRect.x - expandedMargin) && clientX <= (playButtonRect.x + playButtonRect.w + expandedMargin) &&
       clientY >= (playButtonRect.y - expandedMargin) && clientY <= (playButtonRect.y + playButtonRect.h + expandedMargin);
@@ -1961,17 +1955,17 @@ function handleCanvasInteraction(clientX, clientY, event) {
       if (activeWordTranslation) activeWordTranslation.show = false;
       if (wordTranslationTimeoutId) clearTimeout(wordTranslationTimeoutId);
       activeWordTranslation = null; isActionLocked = true;
-      
+
       if (currentQuestionSentenceIndex !== null) {
-          window.speechSynthesis.cancel(); 
+          window.speechSynthesis.cancel();
           playSentenceAudio(currentQuestionSentenceIndex)
               .then(() => {
                   // 오디오 시작 후 애니메이션 트리거
                   triggerSentenceWordAnimation(
-                      currentQuestionSentence, 
+                      currentQuestionSentence,
                       true, // isQuestion
-                      centerSentenceWordRects, 
-                      ctx, 
+                      centerSentenceWordRects,
+                      ctx,
                       300 // AUX_ANIMATION_DELAY_QUESTION 과 동일한 지연
                   );
               })
@@ -1984,38 +1978,38 @@ function handleCanvasInteraction(clientX, clientY, event) {
       showTranslationForAnswer = true; showTranslationForQuestion = false;
       if (activeWordTranslation) activeWordTranslation.show = false;
       if (wordTranslationTimeoutId) clearTimeout(wordTranslationTimeoutId);
-      activeWordTranslation = null; 
-      isActionLocked = true; 
+      activeWordTranslation = null;
+      isActionLocked = true;
 
       if (currentAnswerSentenceIndex !== null) {
-          window.speechSynthesis.cancel(); 
+          window.speechSynthesis.cancel();
           playSentenceAudio(currentAnswerSentenceIndex)
               .then(() => {
                   // 오디오 시작 후 애니메이션 트리거
                   triggerSentenceWordAnimation(
-                      currentAnswerSentence, 
+                      currentAnswerSentence,
                       false, // isQuestion
-                      centerSentenceWordRects, 
-                      ctx, 
+                      centerSentenceWordRects,
+                      ctx,
                       300 // AUX_ANIMATION_DELAY 와 동일한 지연
                   );
               })
               .catch(err => console.error("Error playing answer sentence audio from play button:", err));
       }
-      event.preventDefault(); 
-      setTimeout(() => { isActionLocked = false; }, 200); 
-      return; 
+      event.preventDefault();
+      setTimeout(() => { isActionLocked = false; }, 200);
+      return;
     }
 
     if ((currentQuestionSentence || currentAnswerSentence) && centerSentenceWordRects.length > 0) {
         for (const wordRect of centerSentenceWordRects) {
           if (clientX >= (wordRect.x - expandedMargin/2) && clientX <= (wordRect.x + wordRect.w + expandedMargin/2) &&
               clientY >= (wordRect.y - wordRect.h / 2 - expandedMargin/2) && clientY <= (wordRect.y + wordRect.h / 2 + expandedMargin/2) ) {
-            window.speechSynthesis.cancel(); 
+            window.speechSynthesis.cancel();
             speakWord(wordRect.word).catch(err => console.error(`Error speaking word "${wordRect.word}":`, err));
             if (wordTranslationTimeoutId) clearTimeout(wordTranslationTimeoutId);
             if (activeWordTranslation) activeWordTranslation.show = false;
-            activeWordTranslation = null; isActionLocked = true; 
+            activeWordTranslation = null; isActionLocked = true;
             getWordTranslation(wordRect.word).then(translation => {
                 activeWordTranslation = {
                     word: wordRect.word, translation: translation, x: wordRect.x, y: wordRect.y,
@@ -2026,7 +2020,7 @@ function handleCanvasInteraction(clientX, clientY, event) {
                     if (activeWordTranslation && activeWordTranslation.word === wordRect.word) activeWordTranslation.show = false;
                 }, WORD_TRANSLATION_DURATION);
             }).catch(err => console.error("Error getting word translation:", err));
-            showTranslationForQuestion = false; showTranslationForAnswer = false; 
+            showTranslationForQuestion = false; showTranslationForAnswer = false;
             event.preventDefault(); setTimeout(() => { isActionLocked = false; }, 300); return;
           }
         }
@@ -2035,14 +2029,14 @@ function handleCanvasInteraction(clientX, clientY, event) {
 
   player.x = clientX - player.w / 2;
   if (event.type === 'touchstart' || event.type === 'touchmove') player.y = clientY - player.h / 2 - PLAYER_TOUCH_Y_OFFSET;
-  else player.y = clientY - player.h / 2; 
+  else player.y = clientY - player.h / 2;
   player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
-  player.y = Math.max(topOffset, Math.min(canvas.height - player.h, player.y)); 
+  player.y = Math.max(topOffset, Math.min(canvas.height - player.h, player.y));
   if (activeWordTranslation && activeWordTranslation.show) {
     activeWordTranslation.show = false;
     if (wordTranslationTimeoutId) { clearTimeout(wordTranslationTimeoutId); wordTranslationTimeoutId = null; }
   }
-  showTranslationForQuestion = false; showTranslationForAnswer = false; 
+  showTranslationForQuestion = false; showTranslationForAnswer = false;
 
   const size = MIN_BUBBLE_SIZE + Math.random() * (MAX_BUBBLE_SIZE - MIN_BUBBLE_SIZE);
   const spawnX = player.x + player.w / 2 - size / 2;
@@ -2056,7 +2050,7 @@ function handleCanvasInteraction(clientX, clientY, event) {
     driftXPerSecond: (Math.random() - 0.5) * 2 * BUBBLE_HORIZONTAL_DRIFT_PPS_MAX,
   });
   sounds.shoot.play();
-  event.preventDefault(); 
+  event.preventDefault();
 }
 
 canvas.addEventListener('touchstart', e => {
@@ -2080,29 +2074,29 @@ canvas.addEventListener('touchmove', e => {
   let isOverWord = false;
   if ((currentQuestionSentence || currentAnswerSentence) && centerSentenceWordRects.length > 0) {
     for (const wordRect of centerSentenceWordRects) {
-      if ( touch.clientX >= wordRect.x && touch.clientX <= wordRect.x + wordRect.w && 
+      if ( touch.clientX >= wordRect.x && touch.clientX <= wordRect.x + wordRect.w &&
            touch.clientY >= wordRect.y - wordRect.h/2 && touch.clientY <= wordRect.y + wordRect.h/2 ) {
         isOverWord = true; break;
       }
     }
   }
-  if (isOverPlayBtnQ || isOverPlayBtnA || isOverWord) { e.preventDefault(); return; } 
+  if (isOverPlayBtnQ || isOverPlayBtnA || isOverWord) { e.preventDefault(); return; }
 
   player.x = touch.clientX - player.w / 2;
-  player.y = touch.clientY - player.h / 2 - PLAYER_TOUCH_Y_OFFSET; 
+  player.y = touch.clientY - player.h / 2 - PLAYER_TOUCH_Y_OFFSET;
   player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
   player.y = Math.max(topOffset, Math.min(canvas.height - player.h, player.y));
   e.preventDefault();
 }, { passive: false });
 
 canvas.addEventListener('mousemove', e => {
-  if (!isGameRunning || isGamePaused || e.buttons !== 1) return; 
+  if (!isGameRunning || isGamePaused || e.buttons !== 1) return;
   const isOverPlayBtnQ = showPlayButtonQuestion && playButtonRectQuestion &&
       e.clientX >= (playButtonRectQuestion.x - expandedMargin) && e.clientX <= (playButtonRectQuestion.x + playButtonRectQuestion.w + expandedMargin) &&
       e.clientY >= (playButtonRectQuestion.y - expandedMargin) && e.clientY <= (playButtonRectQuestion.y + playButtonRectQuestion.h + expandedMargin);
   const isOverPlayBtnA = showPlayButton && playButtonRect &&
       e.clientX >= (playButtonRect.x - expandedMargin) && e.clientX <= (playButtonRect.x + playButtonRect.w + expandedMargin) &&
-      e.clientY >= (playButtonRect.y - expandedMargin) && e.clientY <= (playButtonRect.y + playButtonRect.h + expandedMargin);
+      e.clientY >= (playButtonRect.y - expandedMargin) && clientY <= (playButtonRect.y + playButtonRect.h + expandedMargin);
   let isOverWord = false;
   if ((currentQuestionSentence || currentAnswerSentence) && centerSentenceWordRects.length > 0) {
     for (const wordRect of centerSentenceWordRects) {
@@ -2112,16 +2106,16 @@ canvas.addEventListener('mousemove', e => {
       }
     }
   }
-  if (isOverPlayBtnQ || isOverPlayBtnA || isOverWord) return; 
+  if (isOverPlayBtnQ || isOverPlayBtnA || isOverWord) return;
 
   player.x = e.clientX - player.w / 2;
-  player.y = e.clientY - player.h / 2; 
+  player.y = e.clientY - player.h / 2;
   player.x = Math.max(0, Math.min(canvas.width - player.w, player.x));
   player.y = Math.max(topOffset, Math.min(canvas.height - player.h, player.y));
 });
 
 window.addEventListener('load', () => {
-    calculateTopOffset(); 
+    calculateTopOffset();
     let storedIndex = Number(localStorage.getItem('sentenceIndex') || 0);
     sentenceIndex = storedIndex % sentences.length;
     localStorage.setItem('sentenceIndex', sentenceIndex.toString());
