@@ -1321,50 +1321,52 @@ function drawCenterSentence() { // Source 3
         const wordTransFontFamily = "'Malgun Gothic', 'Nanum Gothic', Arial, sans-serif"; // Source 3
         const wordTransFontSize = 16; // Source 3
         ctx.font = `${wordTransFontSize}px ${wordTransFontFamily}`; // Source 3
-        // ctx.textAlign = "center"; // textAlign은 아래에서 각 줄별로 설정 // Source 3
         ctx.fillStyle = "#2E8B57"; // Source 3
         ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 2; ctx.shadowOffsetX = 1; ctx.shadowOffsetY = 1; // Source 3
 
         const angleDegrees = 40; // Source 3
-        // basePadding: 단어 경계로부터 번역 텍스트가 그려질 회전된 좌표계의 원점까지의 수직 거리
-        const basePadding = 8; // Source 3
-        // textOffset: 회전된 좌표계의 원점 (0,0)으로부터 실제 텍스트가 그려지기 시작하는 위치까지의 미세 조정 값
-        const textOffset = 5; // Source 3
+        const basePadding = 8; // 단어 경계와 번역문 회전 중심 사이의 기본 Y 간격 // Source 3
+        const textOffset = 5;  // 회전된 기준점으로부터 텍스트 시작점까지의 미세 X, Y 오프셋 // Source 3
 
         const wordCenterX = activeWordTranslation.x + activeWordTranslation.w / 2; // Source 3
-        const englishWordMiddleY = activeWordTranslation.y; // 단어 텍스트 라인의 수직 중앙 // Source 3
-        const englishWordHalfHeight = activeWordTranslation.h / 2; // 단어 폰트 높이의 절반 // Source 3
+        const englishWordMiddleY = activeWordTranslation.y; // Source 3
+        const englishWordHalfHeight = activeWordTranslation.h / 2; // Source 3
 
         let translateX, translateY, angleRad, textAlign, textBaseline, drawX, drawY; // Source 3
 
-        if (activeWordTranslation.lineIndex === 0) { // Source 3
-            // 위쪽 줄 단어: 우상향 40도
+        if (activeWordTranslation.lineIndex === 0) { // 위쪽 줄 단어 // Source 3
             translateX = wordCenterX; // Source 3
-            translateY = englishWordMiddleY - englishWordHalfHeight - basePadding + 13; // 최종적으로 원래 위치에서 13px 아래
-            angleRad = -angleDegrees * Math.PI / 180; // Source 3
+            translateY = englishWordMiddleY - englishWordHalfHeight - basePadding + 13; // 첫째 줄: 단어 위쪽으로, 최종적으로 원래 위치에서 13px 아래에 회전 중심 Y // Source 3
+            angleRad = -angleDegrees * Math.PI / 180; // 우상향 // Source 3
 
-            textAlign = 'left';   // 회전 후 (0,0)을 기준으로 텍스트가 왼쪽에서 시작 // Source 3
-            textBaseline = 'bottom';// 회전 후 (0,0)을 기준으로 텍스트의 아래쪽 라인 // Source 3
-            drawX = textOffset;     // 회전된 로컬 좌표 (0,0)에서 x축으로 textOffset만큼 이동 // Source 3
-            drawY = -textOffset;    // 회전된 로컬 좌표 (0,0)에서 y축으로 -textOffset만큼 이동 (위로) // Source 3
-        } else { // Source 3
-            // 아래쪽 줄 단어: 좌하향 40도
+            textAlign = 'left'; // Source 3
+            textBaseline = 'bottom'; // Source 3
+            drawX = textOffset; // Source 3
+            drawY = -textOffset; // Source 3
+        } else { // 아래쪽 줄 단어: 좌하향 40도
             translateX = wordCenterX; // Source 3
-            translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + 13; // 최종적으로 원래 위치에서 13px 아래
 
-            angleRad = (180 - angleDegrees) * Math.PI / 180; // Source 3
+            // 두 번째 줄: 단어 아래쪽으로, 단어와 충분한 간격을 두도록 translateY 조정
+            const verticalClearance = 20; // Y 간격을 조금 더 늘려봅니다. (기존 15에서 수정)
+            translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + verticalClearance; // 단어 하단에서 (8 + 20) = 28px 아래에 회전 중심 Y
+            
+            angleRad = (180 - angleDegrees) * Math.PI / 180; // 140도 (좌하향) // Source 3
 
-            textAlign = 'right';  // 140도 회전 시, (0,0)을 기준으로 텍스트가 오른쪽에서 시작해야 왼쪽으로 뻗어나감. // Source 3
-            textBaseline = 'top';   // 회전 후 (0,0)을 기준으로 텍스트의 위쪽 라인 // Source 3
-            drawX = -textOffset;    // 회전된 로컬 좌표 (0,0)에서 x축으로 -textOffset만큼 이동 (왼쪽으로) // Source 3
-            drawY = textOffset;     // 회전된 로컬 좌표 (0,0)에서 y축으로 textOffset만큼 이동 (아래로) // Source 3
+            textAlign = 'right';  // 텍스트가 drawX의 왼쪽으로 그려짐 (좌하향이므로) // Source 3
+            textBaseline = 'top';   // drawY가 텍스트의 상단 기준선 // Source 3
+            
+            // "단어뜻의 끝 부분이 단어의 중앙에 위치 하도록" 요청 반영:
+            // 좌하향 텍스트의 오른쪽 끝(textAlign='right'일 때 drawX가 기준)을 단어의 중앙(wordCenterX) 근처에 위치.
+            // translateX가 이미 wordCenterX이므로, drawX를 0으로 설정하여 정렬. (또는 -textOffset으로 살짝 왼쪽)
+            drawX = 0; // 오른쪽 끝을 단어 중앙에 맞춤 (또는 -textOffset 고려)
+            drawY = textOffset; // 회전된 로컬 좌표에서 살짝 아래로 (단어와의 간격 확보) // Source 3
         }
 
-        ctx.translate(translateX, translateY); // 기준점으로 이동 // Source 3
-        ctx.rotate(angleRad); // 회전 // Source 3
+        ctx.translate(translateX, translateY); // Source 3
+        ctx.rotate(angleRad); // Source 3
         ctx.textAlign = textAlign; // Source 3
         ctx.textBaseline = textBaseline; // Source 3
-        ctx.fillText(activeWordTranslation.translation, drawX, drawY); // 계산된 오프셋으로 텍스트 그리기 // Source 3
+        ctx.fillText(activeWordTranslation.translation, drawX, drawY); // Source 3
 
         ctx.restore(); // Source 3
     }
