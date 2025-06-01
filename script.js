@@ -1042,7 +1042,7 @@ function triggerSentenceWordAnimation(sentenceObject, isQuestion, allWordRects, 
           if (relevantWordRects.length > auxWordGlobalIndexInSentence) {
             const targetWordRectCandidate = relevantWordRects[auxWordGlobalIndexInSentence];
             // 안전하게 단어 텍스트도 비교 (이미 정렬되었으므로 인덱스가 맞아야 함)
-            const candidateTextClean = targetWordRectCandidate.word.replace(/[^a-zA-Z0-9']/g, "").toLowerCase();
+            const candidateTextClean = targetWordRectCandidate.word.replace(/[^a-z0-9']/g, "").toLowerCase();
             const auxWordTextClean = auxWordForAnimation.replace(/[^a-zA-Z0-9']/g, "").toLowerCase();
 
             if (candidateTextClean === auxWordTextClean) {
@@ -1345,8 +1345,11 @@ function drawCenterSentence() {
         } else { // 아래쪽 줄 단어: 좌하향 40도 ("//" 모양), 글자 정상
             translateX = wordCenterX;
 
-            const verticalClearanceSecondLine = 13 + 10 + 7; // 첫째줄 간격(13) + 사용자 요청(10) + 추가 여유(7) = 총 30px
-            translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + verticalClearanceSecondLine;
+            // Y 위치: 단어의 아랫면에서 간격을 두고 회전 기준점 설정
+            // verticalClearanceSecondLine 값은 이전의 30에서 현재 요청(위로 30px)을 반영하여 0으로 설정합니다.
+            // 이렇게 하면 basePadding(8) 만큼만 단어 아래에 기준점이 위치합니다.
+            const verticalClearanceSecondLine = 20 + 10 - 30; // 이전 30에서 30을 빼서 0으로 만듦 (요청에 따라 30px 위로)
+            translateY = englishWordMiddleY + englishWordHalfHeight + basePadding + verticalClearanceSecondLine; 
             
             angleRad = -angleDegrees * Math.PI / 180; // 우상향과 동일한 각도 (-40도)로 회전
 
@@ -1407,20 +1410,20 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
     } else { // Answer
         if (currentQuestionSentence && currentQuestionSentenceIndex === globalSentenceIndex - 1) {
             questionTextForLayout = (currentQuestionSentence.line1 + " " + currentQuestionSentence.line2).trim();
-        } else if (globalSentenceIndex > 0 && sentences[globalSentenceIndex - 1]) {
+        } else if (globalSentenceIndex > 0 && sentences[globalSentenceIndex - 1]) { 
             questionTextForLayout = sentences[globalSentenceIndex - 1];
-        } else {
-            questionTextForLayout = " ";
+        } else { 
+            questionTextForLayout = " "; 
         }
         currentAnswerSentence = null; currentAnswerSentenceIndex = null;
-        showPlayButton = false;
+        showPlayButton = false; 
         showTranslationForAnswer = false;
     }
 
     if (activeWordTranslation)
     activeWordTranslation = null;
     if (wordTranslationTimeoutId)
-    centerSentenceWordRects = [];
+    centerSentenceWordRects = []; 
 
     const [fireworkLine1, fireworkLine2] = splitSentence(sentenceTextForFireworks, isNewSentenceQuestion);
     const wordsForFireworks = [];
@@ -1428,7 +1431,7 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
     if (fireworkLine2.trim()) wordsForFireworks.push(...fireworkLine2.split(" ").map(word => ({ word, row: 1 })));
 
     if(wordsForFireworks.length === 0) {
-        sentenceActive = false; return;
+        sentenceActive = false; return; 
     }
 
     const baseRadius = 51.2 * 0.88; const maxRadius = 120.96 * 0.88 * 0.95; // Adjusted maxRadius
@@ -1448,7 +1451,7 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
     const mainRenderAreaYCenter = topOffset + (canvas.height - topOffset) / 2;
     const [sL1_fw, sL2_fw] = splitSentence(sentenceTextForFireworks, isNewSentenceQuestion);
     const sLines_fw = [sL1_fw, sL2_fw].filter(l => l && l.trim());
-    const sentenceBlockFinalHeight_fw = sLines_fw.length * LINE_HEIGHT + (sLines_fw.length === 2 && isNewSentenceQuestion ? -10 : (sLines_fw.length === 2 && !isNewSentenceQuestion ? 10 : 0));
+    const sentenceBlockFinalHeight_fw = sLines_fw.length * LINE_HEIGHT + (sLines_fw.length === 2 && isNewSentenceQuestion ? -10 : (sLines_fw.length === 2 && !isNewSentenceQuestion ? 10 : 0)); 
 
 
     for (let j = 0; j < wordsForFireworks.length; j++) {
@@ -1459,32 +1462,32 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
         if (roleOfNewSentence === 'question') {
             const qBlockFinalCenterY = mainRenderAreaYCenter + SENTENCE_VERTICAL_ADJUSTMENT;
             wordTargetY = qBlockFinalCenterY - sentenceBlockFinalHeight_fw / 2 + (wordsForFireworks[j].row * LINE_HEIGHT) + (LINE_HEIGHT / 2);
-            if (wordsForFireworks[j].row === 0) wordTargetY -= 10;
+            if (wordsForFireworks[j].row === 0) wordTargetY -= 10; 
         } else { // Answer
             const [qTextL1_layout, qTextL2_layout] = splitSentence(questionTextForLayout, true);
             const qTextLines_layout = [qTextL1_layout, qTextL2_layout].filter(l => l && l.trim());
             let questionBlockActualHeight_layout = qTextLines_layout.length * LINE_HEIGHT;
-            if(qTextLines_layout.length === 1) questionBlockActualHeight_layout -=10;
-
+            if(qTextLines_layout.length === 1) questionBlockActualHeight_layout -=10; 
+            
             const questionBlockActualCenterY_layout = mainRenderAreaYCenter + SENTENCE_VERTICAL_ADJUSTMENT;
             let questionBlockActualBottomY_layout = questionBlockActualCenterY_layout + questionBlockActualHeight_layout / 2;
-             if (qTextLines_layout.length === 1) {
+             if (qTextLines_layout.length === 1) { 
                  questionBlockActualBottomY_layout = questionBlockActualCenterY_layout - 10;
              } else if (qTextLines_layout.length === 2){
-                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout + LINE_HEIGHT - 10;
-             } else if (qTextLines_layout.length === 0) {
-                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout;
+                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout + LINE_HEIGHT - 10; 
+             } else if (qTextLines_layout.length === 0) { 
+                 questionBlockActualBottomY_layout = questionBlockActualCenterY_layout; 
              }
 
 
             let answerBlockFinalTopY_fw;
             if (qTextLines_layout.length > 0) {
                 answerBlockFinalTopY_fw = questionBlockActualBottomY_layout + ANSWER_OFFSET_Y;
-            } else {
+            } else { 
                 answerBlockFinalTopY_fw = questionBlockActualCenterY_layout - sentenceBlockFinalHeight_fw / 2;
             }
             wordTargetY = answerBlockFinalTopY_fw + (wordsForFireworks[j].row * LINE_HEIGHT) + (LINE_HEIGHT / 2);
-            if (wordsForFireworks[j].row === 1) wordTargetY += 10;
+            if (wordsForFireworks[j].row === 1) wordTargetY += 10; 
         }
 
 
@@ -1493,7 +1496,7 @@ function startFireworks(sentenceTextForFireworks, globalSentenceIndex, explosion
             x: centerX, y: explosionY,
             radius: baseRadius, maxRadius: maxRadius,
             color: color,
-            targetX: 0,
+            targetX: 0, 
             targetY: wordTargetY,
         });
     }
@@ -1518,13 +1521,13 @@ function updateFireworks() {
   } else if (fireworksState.phase === "hold") {
     if (fireworksState.t >= fireworksState.holdDuration) {
       fireworksState.phase = "gather"; fireworksState.t = 0;
-      centerAlpha = 0;
+      centerAlpha = 0; 
     }
   } else if (fireworksState.phase === "gather") {
     const progress = Math.min(fireworksState.t / fireworksState.gatherDuration, 1);
-    const ease = Math.pow(progress, 2);
-    const tempCtx = canvas.getContext('2d');
-    tempCtx.font = englishFont;
+    const ease = Math.pow(progress, 2); 
+    const tempCtx = canvas.getContext('2d'); 
+    tempCtx.font = englishFont; 
     const isGatherSentenceQuestion = fireworksState.roleOfNewSentence === 'question';
     const [sentenceLine1Gather, sentenceLine2Gather] = splitSentence(fireworksState.sentenceTextToDisplayAfter, isGatherSentenceQuestion);
     let sentenceLineWordArrays = [];
@@ -1545,7 +1548,7 @@ function updateFireworks() {
                 currentLineTotalWidth += adjustedSpaceWidthFireworks;
             }
         }
-        let currentXTargetForWord = (canvas.width - currentLineTotalWidth) / 2;
+        let currentXTargetForWord = (canvas.width - currentLineTotalWidth) / 2; 
         for (let j = 0; j < wordsInLine.length; j++) {
             if (fireworks[wordIndexInFireworks]) {
                 fireworks[wordIndexInFireworks].targetX = currentXTargetForWord;
@@ -1559,10 +1562,10 @@ function updateFireworks() {
     }
 
     fireworks.forEach((fw) => {
-      fw.x += (fw.targetX - fw.x) * ease * 0.2;
-      fw.y += (fw.targetY - fw.y) * ease * 0.2;
+      fw.x += (fw.targetX - fw.x) * ease * 0.2; 
+      fw.y += (fw.targetY - fw.y) * ease * 0.2; 
     });
-    centerAlpha += (1.0 - centerAlpha) * ease * 0.15;
+    centerAlpha += (1.0 - centerAlpha) * ease * 0.15; 
 
     if (progress >= 1) {
         fireworksState.phase = "done";
@@ -1577,7 +1580,7 @@ function updateFireworks() {
         if (roleOfNewSentence === 'question') {
             currentQuestionSentence = newSentenceObject; currentQuestionSentenceIndex = newSentenceIndex;
             currentAnswerSentence = null; currentAnswerSentenceIndex = null;
-            showPlayButton = false; showPlayButtonQuestion = true;
+            showPlayButton = false; showPlayButtonQuestion = true; 
             playAudioForThisSentence = true;
         } else { // Answer
             const questionIndexOfThisAnswer = newSentenceIndex - 1;
@@ -1587,18 +1590,18 @@ function updateFireworks() {
                     currentQuestionSentence = {line1: qL1, line2: qL2};
                     currentQuestionSentenceIndex = questionIndexOfThisAnswer;
                 }
-                 showPlayButtonQuestion = true;
-            } else {
+                 showPlayButtonQuestion = true; 
+            } else { 
                 currentQuestionSentence = null; currentQuestionSentenceIndex = null;
                 showPlayButtonQuestion = false;
             }
             currentAnswerSentence = newSentenceObject; currentAnswerSentenceIndex = newSentenceIndex;
-            showPlayButton = true;
+            showPlayButton = true; 
             playAudioForThisSentence = true;
         }
         centerAlpha = 1.0;
         fireworks = null; fireworksState = null; sentenceActive = false;
-        if (activeWordTranslation) activeWordTranslation.show = false;
+        if (activeWordTranslation) activeWordTranslation.show = false; 
         activeWordTranslation = null; if (wordTranslationTimeoutId) clearTimeout(wordTranslationTimeoutId);
 
         if (playAudioForThisSentence) {
@@ -1615,17 +1618,17 @@ function updateFireworks() {
                 sentenceObjectForAnimation = currentAnswerSentence;
                 isQuestionForAnimation = false;
             }
-
+            
             if (audioIndexToPlay !== null && sentenceObjectForAnimation) {
-                setTimeout(() => {
-                    window.speechSynthesis.cancel();
+                setTimeout(() => { 
+                    window.speechSynthesis.cancel(); 
                     playSentenceAudio(audioIndexToPlay)
                         .then(() => {
                             triggerSentenceWordAnimation(
-                                sentenceObjectForAnimation,
-                                isQuestionForAnimation,
+                                sentenceObjectForAnimation, 
+                                isQuestionForAnimation, 
                                 centerSentenceWordRects,
-                                ctx,
+                                ctx, 
                                 300
                             );
                         })
